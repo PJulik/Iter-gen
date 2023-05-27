@@ -1,30 +1,35 @@
 class FlatIterator:
-    def __init__(self, nested_list):
-        self.nested_list = nested_list
+    def __init__(self, list_of_list):
+        self.list_of_list = list_of_list
 
     def __iter__(self):
-        self.counter = -1
+        self.outer_list = 0
+        self.inner_list = -1
         return self
-
     def __next__(self):
-        self.counter += 1
-        if self.counter == len(self.nested_list):
+        self.inner_list += 1
+        if self.inner_list >= len(self.list_of_list[self.outer_list]):
+            self.inner_list = 0
+            self.outer_list += 1
+        if self.outer_list >= len(self.list_of_list):
             raise StopIteration
-        item = self.nested_list[self.counter]
-        return item
 
-nested_list = [
-	['a', 'b', 'c'],
-	['d', 'e', 'f', 'h', False],
-	[1, 2, None],
-]
-for item in FlatIterator(nested_list):
-    for el in item:
-        print(el)
+        return self.list_of_list[self.outer_list][self.inner_list]
 
-flat_list = [el for item in FlatIterator(nested_list) for el in item]
-print(flat_list)
+def test_1():
+    list_of_list_1 = [
+        ['a', 'b', 'c'],
+        ['d', 'e', 'f', 'h', False],
+        [1, 2, None]
+    ]
 
+    for flat_iterator_item, check_item in zip(FlatIterator(list_of_list_1), ['a', 'b', 'c', 'd', 'e', 'f', 'h', False, 1, 2, None]):
+        assert flat_iterator_item == check_item
+
+    assert list(FlatIterator(list_of_list_1)) == ['a', 'b', 'c', 'd', 'e', 'f', 'h', False, 1, 2, None]
+
+if __name__ == '__main__':
+    test_1()
 
 
 
